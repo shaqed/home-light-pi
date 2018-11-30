@@ -1,16 +1,17 @@
 # light_server.py
 
 import socket
-# import RPi.GPIO as gpio
+import RPi.GPIO as gpio
 import datetime
 import sys
 import traceback
 
 power = None
 pin_number = 2
-# addr = ("10.100.102.44", 4444)
-addr = ("127.0.0.1", 5555)
+addr = ("10.100.102.44", 1340)
+#addr = ("127.0.0.1", 5555)
 debug_mode = True
+test_mode = False
 
 # Files
 __light_state = "./light_state"
@@ -69,7 +70,7 @@ def toggle():
 
 
 	# remove this on live
-	if not debug_mode:
+	if not test_mode:
 		gpio.output(pin_number, power);
 	else:
 		print "toggle() called, changed power to %s" % (str(power))
@@ -78,9 +79,10 @@ def toggle():
 
 
 def setup():
-	if not debug_mode:
+	if not test_mode:
 		gpio.setmode(gpio.BCM)
 		gpio.setup(pin_number, gpio.OUT)
+		gpio.output(pin_number, False)
 	else:
 		print "setup() called"
 
@@ -101,7 +103,7 @@ def handle_request(client_socket):
 		elif msg.startswith("TOGGLE"):
 			toggle()  # Perform a toggle to the light
 			ans = RESPONSE_TOGGLE
-			debug("toggle requested... state changed to: " + ans)
+			debug("toggle requested... state changed to: " + str(get_state()))
 		else:
 			debug("Unexpected request: " + str(msg))
 
